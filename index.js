@@ -1,9 +1,5 @@
-'use strict';
+import { run } from 'mailer';
 
-var action = require('./mailer.js');
-
-exports.handler = function(event, context) {
-  action.run(event, context, function(error, result) {
-    return context.done(error, result);
-  });
+exports.handler = (event, context) => {
+  run(event, context, (error, result) => context.done(error, result));
 };

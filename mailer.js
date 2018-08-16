@@ -1,54 +1,30 @@
-'use strict';
+import mjml2html from 'mjml';
 
-var path          = require('path'),
-    Promise       = require('bluebird'),
-    nodemailer    = require('nodemailer'),
-    EmailTemplate = require('email-templates').EmailTemplate;
+const path = require('path');
+const nodemailer = require('nodemailer');
+const mjmlUtils = require('mjml-utils');
+const AWS = require('aws-sdk');
 
-module.exports.run = function(event, context, cb) {
-  if (!process.env.EMAIL_SERVICE) {
-    return cb(new Error('EMAIL_SERVICE env var not set'));
-  }
-
-  if (!process.env.EMAIL_SERVICE_USER) {
-    return cb(new Error('EMAIL_SERVICE_USER env var not set'));
-  }
-
-  if (!process.env.EMAIL_SERVICE_PASS) {
-    return cb(new Error('EMAIL_SERVICE_PASS env var not set'));
-  }
-
-  var templateDir = path.join(__dirname, 'templates', event.template);
-  var template = new EmailTemplate(templateDir);
-
-  Promise.promisifyAll(template);
-
-  var sendMail = function(result) {
-    var transporter = nodemailer.createTransport({
-      service: process.env.EMAIL_SERVICE,
-      auth: {
-        user: process.env.EMAIL_SERVICE_USER,
-        pass: process.env.EMAIL_SERVICE_PASS
-      }
-    });
-
-    Promise.promisifyAll(transporter);
-
-    event.text = result.text;
-    event.html = result.html;
-
-    return transporter.sendMailAsync(event);
+export const run = (event, context, callback) => {
+  const handleResponse = (err, info) => {
+    if (err) {
+      callback(err);
+    } else {
+      console.log('Message sent : ', info);
+      callback(null, { message: 'Email has been successfully sent' });
+    }
   };
 
-  var handleResponse = function(info) {
-    console.log('Message sent: ' + info.response);
-    return cb(null, {message: 'Yaay success'});
+  const sendEmail = (html) => {
+    const transporter = nodemailer.createTransport({ SES: new AWS.SES({ apiVersion: '2010-12-01' }) });
+    const payload = Object.assign({}, event);
+    payload.html = html;
+    transporter.sendMail(payload, handleResponse);
   };
 
-  template.render(event.context)
-    .then(sendMail)
-    .then(handleResponse)
-    .catch(function(e) {
-      return cb(new Error('Something went wrong!'));
+  mjmlUtils.inject(`${path.join(__dirname, 'templates')}/${event.template}.mjml`, event.context)
+    .then((content) => {
+      const result = mjml2html(content, { minify: true });
+      sendEmail(result.html);
     });
 };
