@@ -1,11 +1,10 @@
-import mjml2html from 'mjml';
-
+const mjml2html = require('mjml');
 const path = require('path');
 const nodemailer = require('nodemailer');
 const mjmlUtils = require('mjml-utils');
 const AWS = require('aws-sdk');
 
-export const run = (event, context, callback) => {
+module.exports.run = (event, context, callback) => {
   const handleResponse = (err, info) => {
     if (err) {
       callback(err);

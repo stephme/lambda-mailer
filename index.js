@@ -1,5 +1,5 @@
-import { run } from 'mailer';
+var action = require('./mailer.js');
 
 exports.handler = (event, context) => {
-  run(event, context, (error, result) => context.done(error, result));
+  action.run(event, context, (error, result) => context.done(error, result));
 };
