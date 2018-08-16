@@ -10,7 +10,7 @@ This lambda gives your browser (or any client) a backend for sending emails.
 npm install -g node-lambda
 
 // clone the lambda and get inside!
-git clone https://github.com/eahefnawy/lambda-mailer.git
+https://github.com/stephme/lambda-mailer
 cd lambda-mailer
 
 // install dependencies
