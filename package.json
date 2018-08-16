@@ -15,8 +15,8 @@
   "homepage": "https://github.com/eahefnawy/lambda-mailer",
   "dependencies": {
     "bluebird": "^2.10.1",
-    "nodemailer": "^1.5.0",
     "email-templates": "^2.0.1",
-    "handlebars": "^3.0.0"
+    "handlebars": "^4.0.11",
+    "nodemailer": "^1.5.0"
   }
 }
